@@ -1,6 +1,6 @@
 library(shinythemes); library(shinyBS)
 library(DT); library(dplyr)
-# source("kdrisk.R")
+source("utils.R")
 # source("kdData.R")
 
 
@@ -37,7 +37,7 @@ ui <- navbarPage("Steroid Conversions", theme = shinytheme("flatly"), collapsibl
                                                     bsCollapsePanel(p(icon("bars"),HTML('&nbsp;'), "Patient values"), value = "panel",
                                                                     div(fluidRow(
                                                                       column(6, numericInput("label_DOSE", label = h3("Dose"), value = 1)),
-                                                                      column(6, radioButtons("label_UNIT", label = h3("Unit"), choices = list("mg/kg" = 1, "mg/m2" = 0), selected = 1))
+                                                                      column(6, radioButtons("label_UNIT", label = h3("Unit"), choices = list("mg/kg" = "mgkg", "mg/m2" = "mgm2"), selected = "mgkg"))
                                                                     )),
                                                                     div(fluidRow(
                                                                       column(12, selectInput("label_DRUG", label = h3("Steroid"), 
@@ -67,54 +67,41 @@ ui <- navbarPage("Steroid Conversions", theme = shinytheme("flatly"), collapsibl
                               #     tags$li(tags$span("PPV = % of patients above threshold that DID need a 2nd IVIG")),
                               #     tags$li(tags$span("NPV = % of patients below threshold that DID NOT need a 2nd IVIG"))))
                               # )
+                              div(DT::dataTableOutput("Table"))
                             )
                           )
                  )
 )
 
 server <- function(input, output) {
-  p <- reactive({
-    round(
-      kdRisk(
-        WBC = input$labelWBC,
-        Platelet = input$labelPLAT,
-        Hgb = input$labelHGB,
-        AST = input$labelAST,
-        Na = input$labelNA,
-        Alb = input$labelALB,
-        Temp = input$labelTEMP,
-        Classic = as.numeric(input$labelCLASSIC)),
-      2
+  df <- reactive({
+    steroid_conv_table(
+        wt = input$label_WEIGHT,
+        ht = input$label_HEIGHT,
+        dose = input$label_DOSE,
+        drug = input$label_DRUG,
+        unit = input$label_UNIT,
+        effect = "cort"
     )
-    # kdRisk(
-    #   WBC = 14,
-    #   Platelet = 400,
-    #   Hgb = 14,
-    #   AST = 40,
-    #   Na = 140,
-    #   Alb = 4,
-    #   Temp = 39,
-    #   Classic = 1
-    # )
   })
   
-  output$conditionalDecision <- renderUI({
-    if (p() <= cut[as.numeric(input$labelCUT)]){
-      tags$div(
-        style="border:solid; background-color:#66c2a550; border-radius: 5px; 
-               overflow: hidden; text-align:center; vertical-align: middle;
-               line-height: normal;",
-        tags$h3("Probability of non-response: ", tags$b(as.character(p())), tags$br(), tags$h2("Safe to discharge"))
-      )
-    } else {
-      tags$div(
-        style="border:solid; background-color:#d53e4f50; border-radius: 5px; 
-               overflow: hidden; text-align:center; vertical-align: middle;
-               line-height: normal;",
-        tags$h3("Probability of non-response: ", tags$b(as.character(p())), tags$br(), tags$h2("Not safe to discharge"))
-      )
-    }
-  })
+  # output$conditionalDecision <- renderUI({
+  #   if (p() <= cut[as.numeric(input$labelCUT)]){
+  #     tags$div(
+  #       style="border:solid; background-color:#66c2a550; border-radius: 5px; 
+  #              overflow: hidden; text-align:center; vertical-align: middle;
+  #              line-height: normal;",
+  #       tags$h3("Probability of non-response: ", tags$b(as.character(p())), tags$br(), tags$h2("Safe to discharge"))
+  #     )
+  #   } else {
+  #     tags$div(
+  #       style="border:solid; background-color:#d53e4f50; border-radius: 5px; 
+  #              overflow: hidden; text-align:center; vertical-align: middle;
+  #              line-height: normal;",
+  #       tags$h3("Probability of non-response: ", tags$b(as.character(p())), tags$br(), tags$h2("Not safe to discharge"))
+  #     )
+  #   }
+  # })
   
   #Data table generation
   # output$text <- renderText({ 
@@ -128,9 +115,9 @@ server <- function(input, output) {
   #          "||| Classic = ", input$labelCLASSIC)
   # })
   
-  output$prob <- renderText({
-    paste0(as.character(p()))
-  })
+  # output$prob <- renderText({
+  #   paste0(as.character(p()))
+  # })
   
   output$componentTable = DT::renderDataTable({
     datatable(
@@ -153,6 +140,8 @@ server <- function(input, output) {
         backgroundColor = styleEqual(c(0, 1), c('#white', '#00000010')),
         fontWeight = styleEqual(c(0,1), c("normal", "bold")))
   })
+  
+  output$Table = DT::renderDataTable({df()})
   #Plot generation
   # output$plotSBP <- renderPlot({
   #   S()$plot + ggtitle("Systolic BP percentiles")
