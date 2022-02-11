@@ -71,6 +71,7 @@ steroid_conv_table <- function(wt, ht, dose, drug, unit, effect){
       data.frame(mgkg = out$mgkg, mgm2 = out$mgm2)
     })) %>% 
     unnest(output) %>% 
-    select(-equiv_dose)
+    select(-equiv_dose) %>% 
+    mutate_at(c("mgkg", "mgm2"), round, 3)
 }
 # steroid_conv_table(wt=18.7, ht=89, dose=10, type="hct", unit="mgm2", effect = "mineral")
