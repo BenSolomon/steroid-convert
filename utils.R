@@ -12,7 +12,11 @@ steroid_unit_conv <- function(wt, ht, dose, unit){
     mass <- dose*bsa
     mgkg <- dose/wt
     mgm2 <- dose
-  } else {
+  } else if (unit == "mg") {
+    mass <- dose
+    mgkg <- dose/wt
+    mgm2 <- mass/bsa
+  } else {  
     error("Invalid unit")
   }
   return(list("bsa"=bsa, "mgkg" = mgkg, "mgm2" = mgm2))

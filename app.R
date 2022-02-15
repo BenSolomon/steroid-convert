@@ -50,7 +50,7 @@ ui <-
                                     radioButtons(
                                       "label_UNIT",
                                       label = h3("Unit"),
-                                      choices = list("mg/kg" = "mgkg", "mg/m2" = "mgm2"),
+                                      choices = list("mg/kg" = "mgkg", "mg/m2" = "mgm2", "mg" = "mg"),
                                       selected = "mgkg"
                                     )
                                   )
