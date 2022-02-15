@@ -82,7 +82,7 @@ steroid_conv_table <- function(wt, ht, dose, drug, unit, effect){
 
 
 # Plots number line with relative steroid dosing
-gg_steroid_scale <- function(hct_mgm2_dose){
+gg_steroid_scale <- function(hct_mgm2_dose, y_adj = 0.2){
   
   df_annotation <- tribble(
     ~dose, ~feature,
@@ -105,17 +105,59 @@ gg_steroid_scale <- function(hct_mgm2_dose){
   df <- df_annotation %>% 
     full_join(df_numberLine, by = "dose")
   
-  ggplot(df, aes(y = dose, x = 0, label = feature))+
-    geom_point(shape = "-", size = 5) +
-    geom_point(data = df %>% drop_na()) +
+  ggplot(df, aes(x = dose, y = 0, label = feature))+
+    geom_point(shape = "|", size = 3) +
+    geom_point(data = df %>% drop_na(), size = 2) +
     geom_path()+
-    geom_point(aes(y = hct_mgm2_dose), color = "black", size = 4)+
-    geom_point(aes(y = hct_mgm2_dose), color = "red", size = 2)+
-    geom_text(data = df %>% drop_na(), aes(label = sprintf("%smg/m2/d", dose)), nudge_x = -0.05, hjust =1) +
-    geom_text(nudge_x = 0.05, hjust = 0) +
+    geom_point(aes(x = hct_mgm2_dose), color = "black", size = 4)+
+    geom_point(aes(x = hct_mgm2_dose), color = "red", size = 2)+
+    ggrepel::geom_label_repel(data = df %>% drop_na(), 
+                              aes(label = sprintf("%smg/m2/d", dose)), 
+                              nudge_y = -y_adj, hjust = 0.5, 
+                              xlim=c(0, Inf), segment.linetype = "dotted") +
+    ggrepel::geom_label_repel(nudge_y = y_adj, vjust = 0.5,
+                              xlim=c(0, Inf), segment.linetype = "dotted") +
     theme_void() +
-    scale_x_continuous(lim = c(-1,1)) +
-    theme(axis.title.y = element_text(angle = 90, face = "bold"),
-          plot.margin = margin(2, 2, 2, 2,unit = "pt"))+
-    labs(y="Equivalent hydrocortisone dose")
+    scale_y_continuous(lim = c(-y_adj*1.5,y_adj*1.5)) +
+    scale_x_continuous(expand = expansion(mult = c(0.05,0.1)), "Hydrocortisone equivalent") +
+    theme(axis.title.x = element_text(face = "bold"))
 }
+
+# # VERTICAL VERSION
+# gg_steroid_scale <- function(hct_mgm2_dose){
+#   
+#   df_annotation <- tribble(
+#     ~dose, ~feature,
+#     10, "Physiologic",
+#     25, "Stress dose",
+#     50, "Extra stress dose",
+#     100, "Super stress dose"
+#   )
+#   
+#   if (hct_mgm2_dose <= 100) {
+#     df_numberLine <- tibble(
+#       dose = seq(0,100,by=5)
+#     )    
+#   } else {
+#     df_numberLine <- tibble(
+#       dose = seq(0,hct_mgm2_dose,by=5)
+#     )
+#   }
+#   
+#   df <- df_annotation %>% 
+#     full_join(df_numberLine, by = "dose")
+#   
+#   ggplot(df, aes(y = dose, x = 0, label = feature))+
+#     geom_point(shape = "-", size = 5) +
+#     geom_point(data = df %>% drop_na()) +
+#     geom_path()+
+#     geom_point(aes(y = hct_mgm2_dose), color = "black", size = 4)+
+#     geom_point(aes(y = hct_mgm2_dose), color = "red", size = 2)+
+#     geom_text(data = df %>% drop_na(), aes(label = sprintf("%smg/m2/d", dose)), nudge_x = -0.05, hjust =1) +
+#     geom_text(nudge_x = 0.05, hjust = 0) +
+#     theme_void() +
+#     scale_x_continuous(lim = c(-1,1)) +
+#     theme(axis.title.y = element_text(angle = 90, face = "bold"),
+#           plot.margin = margin(2, 2, 2, 2,unit = "pt"))+
+#     labs(y="Equivalent hydrocortisone dose")
+# }

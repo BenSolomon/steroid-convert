@@ -99,12 +99,12 @@ ui <-
                  # div(DT::dataTableOutput("Table")),
                  fluidPage(
                    fluidRow(
-                     column(6, 
-                            DT::dataTableOutput("glucTable"),
-                            br(),
-                            DT::dataTableOutput("minTable")),
-                     column(6,
-                            plotOutput("ggsteroid"))
+                     column(6,div(DT::dataTableOutput("glucTable"))),
+                     column(6,div(DT::dataTableOutput("minTable")))
+                   ),
+                   fluidRow(
+                     column(12,
+                            plotOutput("ggsteroid", height="200px"))
                    )
                  )
                  # ,
