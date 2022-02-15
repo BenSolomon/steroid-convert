@@ -79,3 +79,43 @@ steroid_conv_table <- function(wt, ht, dose, drug, unit, effect){
     mutate_at(c("mgkg", "mgm2"), round, 3)
 }
 # steroid_conv_table(wt=18.7, ht=89, dose=10, type="hct", unit="mgm2", effect = "mineral")
+
+
+# Plots number line with relative steroid dosing
+gg_steroid_scale <- function(hct_mgm2_dose){
+  
+  df_annotation <- tribble(
+    ~dose, ~feature,
+    10, "Physiologic",
+    25, "Stress dose",
+    50, "Extra stress dose",
+    100, "Super stress dose"
+  )
+  
+  if (hct_mgm2_dose <= 100) {
+    df_numberLine <- tibble(
+      dose = seq(0,100,by=5)
+    )    
+  } else {
+    df_numberLine <- tibble(
+      dose = seq(0,hct_mgm2_dose,by=5)
+    )
+  }
+  
+  df <- df_annotation %>% 
+    full_join(df_numberLine, by = "dose")
+  
+  ggplot(df, aes(y = dose, x = 0, label = feature))+
+    geom_point(shape = "-", size = 5) +
+    geom_point(data = df %>% drop_na()) +
+    geom_path()+
+    geom_point(aes(y = hct_mgm2_dose), color = "black", size = 4)+
+    geom_point(aes(y = hct_mgm2_dose), color = "red", size = 2)+
+    geom_text(data = df %>% drop_na(), aes(label = sprintf("%smg/m2/d", dose)), nudge_x = -0.05, hjust =1) +
+    geom_text(nudge_x = 0.05, hjust = 0) +
+    theme_void() +
+    scale_x_continuous(lim = c(-1,1)) +
+    theme(axis.title.y = element_text(angle = 90, face = "bold"),
+          plot.margin = margin(2, 2, 2, 2,unit = "pt"))+
+    labs(y="Equivalent hydrocortisone dose")
+}

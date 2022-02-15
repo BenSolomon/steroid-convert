@@ -102,7 +102,9 @@ ui <-
                      column(6, 
                             DT::dataTableOutput("glucTable"),
                             br(),
-                            DT::dataTableOutput("minTable"))
+                            DT::dataTableOutput("minTable")),
+                     column(6,
+                            plotOutput("ggsteroid"))
                    )
                  )
                  # ,
@@ -236,6 +238,13 @@ server <- function(input, output) {
       )
     )
   })
+  
+  output$ggsteroid <- renderPlot({
+    df_gluc() %>% 
+      filter(drug == "hct") %>% 
+      pull(mgm2) %>% 
+      gg_steroid_scale()
+    })
   
   # output$Table = DT::renderDataTable({df()})
   #Plot generation
