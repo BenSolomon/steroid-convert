@@ -11,7 +11,7 @@ ui <-
     theme = shinytheme("flatly"),
     collapsible = T,
     header =
-      tags$head(# includeHTML("google-analytics.js"),
+      tags$head(includeHTML("google-analytics.js"),
         tags$style(
           HTML(
             "
