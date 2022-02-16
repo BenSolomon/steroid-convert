@@ -29,6 +29,16 @@ ui <-
                             # color: white;
                             text-align: center;
                         }
+            <!---
+                        .datatables {
+                            font-size: 1.5vw;
+                        }
+            --->
+                        @media screen and (min-width: 1024px) {
+                            .datatables {
+                                font-size: 12px;
+                            }
+                        }
                         "
           )
         )),
@@ -83,32 +93,19 @@ ui <-
                                 ))
                               )
                             )),
-               mainPanel(# uiOutput("conditionalDecision"),
-                 # fluidRow(
-                 #   column(4),
-                 #   column(4, uiOutput("conditionalDecision"))
-                 # ),
-                 # div(DT::dataTableOutput("componentTable"), style = "overflow-x: auto;"),
-                 # fluidRow(
-                 #   tags$div(tags$ul(
-                 #     tags$li(tags$span("Sensitivity = % of patients who DID require 2nd IVIG who would NOT be discharged early")),
-                 #     tags$li(tags$span("Specificity = % of patients who DID NOT require 2nd IVIG who would HAVE been discharged early")),
-                 #     tags$li(tags$span("PPV = % of patients above threshold that DID need a 2nd IVIG")),
-                 #     tags$li(tags$span("NPV = % of patients below threshold that DID NOT need a 2nd IVIG"))))
-                 # )
-                 # div(DT::dataTableOutput("Table")),
+               mainPanel(
                  fluidPage(
                    fluidRow(
-                     column(6,div(DT::dataTableOutput("glucTable"))),
-                     column(6,div(DT::dataTableOutput("minTable")))
+                     DT::dataTableOutput("glucTable"),
+                     DT::dataTableOutput("minTable"),
+                     # column(6,div(DT::dataTableOutput("glucTable"), style="width:100%;background-color:blue")),
+                     # column(6,div(DT::dataTableOutput("minTable"), style="width:100%;background-color:red"))
                    ),
                    fluidRow(
                      column(12,
                             plotOutput("ggsteroid", height="200px"))
                    )
                  )
-                 # ,
-                 # div(DT::dataTableOutput("componentTable"))
              )))
   )
 
@@ -135,62 +132,6 @@ server <- function(input, output) {
     ) 
   })
   
-  # output$conditionalDecision <- renderUI({
-  #   if (p() <= cut[as.numeric(input$labelCUT)]){
-  #     tags$div(
-  #       style="border:solid; background-color:#66c2a550; border-radius: 5px; 
-  #              overflow: hidden; text-align:center; vertical-align: middle;
-  #              line-height: normal;",
-  #       tags$h3("Probability of non-response: ", tags$b(as.character(p())), tags$br(), tags$h2("Safe to discharge"))
-  #     )
-  #   } else {
-  #     tags$div(
-  #       style="border:solid; background-color:#d53e4f50; border-radius: 5px; 
-  #              overflow: hidden; text-align:center; vertical-align: middle;
-  #              line-height: normal;",
-  #       tags$h3("Probability of non-response: ", tags$b(as.character(p())), tags$br(), tags$h2("Not safe to discharge"))
-  #     )
-  #   }
-  # })
-  
-  #Data table generation
-  # output$text <- renderText({ 
-  #   paste0("||| WBC = ", input$labelWBC,
-  #          "||| Platelets = ", input$labelPLAT,
-  #          "||| Hgb = ", input$labelHGB,
-  #          "||| AST = ", input$labelAST,
-  #          "||| Na = ", input$labelNA,
-  #          "||| ALB = ", input$labelALB,
-  #          "||| Temp = ", input$labelTEMP,
-  #          "||| Classic = ", input$labelCLASSIC)
-  # })
-  
-  # output$prob <- renderText({
-  #   paste0(as.character(p()))
-  # })
-  
-  output$componentTable = DT::renderDataTable({
-    datatable(
-      data.frame(cut, sens, spec, PPV, NPV, "test" = as.integer(1:4 == input$labelCUT)),
-      colnames = c("Cut-off", "Sensitivity", "Specificity", "PPV", "NPV", "test"),
-      rownames = FALSE,
-      caption = htmltools::tags$caption(
-        style = 'caption-side: bottom; text-align: right;',
-        "Bold row indicates selected probability cut-off"),
-      class = "cell-border",
-      options = list(dom = "t",
-                     ordering = F,
-                     columnDefs = list(
-                       list(className = 'dt-center', targets = 0:5),
-                       list(targets = 5, visible = F)))
-    )  %>%
-      formatStyle(
-        columns = 'test',
-        target = 'row',
-        backgroundColor = styleEqual(c(0, 1), c('#white', '#00000010')),
-        fontWeight = styleEqual(c(0,1), c("normal", "bold")))
-  })
-  
   output$glucTable = DT::renderDataTable({
     datatable(
       df_gluc(),
@@ -208,6 +149,7 @@ server <- function(input, output) {
       options = list(
         dom = "t",
         ordering = F,
+        # scrollX = TRUE,
         columnDefs = list(list(
           className = 'dt-center', targets = 0:3
         ))
@@ -232,6 +174,7 @@ server <- function(input, output) {
       options = list(
         dom = "t",
         ordering = F,
+        # scrollX = TRUE,
         columnDefs = list(list(
           className = 'dt-center', targets = 0:3
         ))
@@ -245,16 +188,6 @@ server <- function(input, output) {
       pull(mgm2) %>% 
       gg_steroid_scale()
     })
-  
-  # output$Table = DT::renderDataTable({df()})
-  #Plot generation
-  # output$plotSBP <- renderPlot({
-  #   S()$plot + ggtitle("Systolic BP percentiles")
-  # })
-  # 
-  # output$plotDBP <- renderPlot({
-  #   D()$plot +ggtitle("Diastolic BP percentiles")
-  # })
 }
 
 shinyApp(ui, server)
