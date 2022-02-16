@@ -1,5 +1,6 @@
 library(shinythemes); library(shinyBS)
-library(DT); library(dplyr)
+library(DT); library(dplyr);
+library(ggrepel)
 source("utils.R")
 # source("kdData.R")
 
