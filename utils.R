@@ -120,7 +120,7 @@ gg_steroid_scale <- function(hct_mgm2_dose, y_adj = 0.2){
                               xlim=c(0, Inf), segment.linetype = "dotted") +
     theme_void() +
     scale_y_continuous(lim = c(-y_adj*1.5,y_adj*1.5)) +
-    scale_x_continuous(expand = expansion(mult = c(0.05,0.1)), "Hydrocortisone equivalent") +
+    scale_x_continuous(expand = expansion(mult = c(0.05,0.2)), "Hydrocortisone equivalent") +
     theme(axis.title.x = element_text(face = "bold"))
 }
 
