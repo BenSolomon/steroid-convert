@@ -146,7 +146,7 @@ server <- function(input, output) {
   output$glucTable = DT::renderDataTable({
     datatable(
       df_gluc(),
-      colnames = c("Steroid", "Relative potency", "mg/kg", "mg/m2"),
+      colnames = c("Steroid", "Relative potency", "mg", "mg/kg", "mg/m2"),
       rownames = FALSE,
       caption = htmltools::tags$caption(
         style =
@@ -162,7 +162,7 @@ server <- function(input, output) {
         ordering = F,
         # scrollX = TRUE,
         columnDefs = list(list(
-          className = 'dt-center', targets = 0:3
+          className = 'dt-center', targets = 0:4
         )),
         scrollX = TRUE
       )
@@ -172,7 +172,7 @@ server <- function(input, output) {
   output$minTable = DT::renderDataTable({
     datatable(escape = F,
               df_min(),
-              colnames = c("Steroid", "Relative potency", "mg/kg", "mg/m2"),
+              colnames = c("Steroid", "Relative potency", "mg", "mg/kg", "mg/m2"),
               rownames = FALSE,
               caption = htmltools::tags$caption(
                 style =
@@ -189,7 +189,7 @@ server <- function(input, output) {
           ordering = F,
           # scrollX = TRUE,
           columnDefs = list(list(
-            className = 'dt-center', targets = 0:3
+            className = 'dt-center', targets = 0:4
           )),
           scrollX = TRUE
         )

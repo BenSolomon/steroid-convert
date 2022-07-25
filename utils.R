@@ -20,7 +20,7 @@ steroid_unit_conv <- function(wt, ht, dose, unit){
   } else {  
     error("Invalid unit")
   }
-  return(list("bsa"=bsa, "mgkg" = mgkg, "mgm2" = mgm2))
+  return(list("bsa"=bsa, "mgkg" = mgkg, "mgm2" = mgm2, "mg" = mass))
 }
 # steroid_unit_conv(wt = 18.7, ht = 89, dose = 1, unit = "mgm2")
 
@@ -73,11 +73,11 @@ steroid_conv_table <- function(wt, ht, dose, drug, unit, effect){
   steroid_drug_conv(dose, drug, effect) %>% 
     mutate(output = map(equiv_dose, function(x){
       out <- steroid_unit_conv(wt = wt, ht = ht, dose = x, unit = unit)
-      data.frame(mgkg = out$mgkg, mgm2 = out$mgm2)
+      data.frame(mg = out$mg, mgkg = out$mgkg, mgm2 = out$mgm2)
     })) %>% 
     unnest(output) %>% 
     select(-equiv_dose) %>% 
-    mutate_at(c("mgkg", "mgm2"), round, 3)
+    mutate_at(c("mg", "mgkg", "mgm2"), round, 3)
 }
 # steroid_conv_table(wt=18.7, ht=89, dose=10, type="hct", unit="mgm2", effect = "mineral")
 
